@@ -175,7 +175,7 @@ const EventCards = ({ events, onEventClick, currentUserId }) => (
                   onEventClick(event);
                 }}
               >
-                {isEnrolled ? 'View Details' : 'View Tickets'}
+                {isEnrolled ? 'View Details' : 'See more'}
               </button>
             </div>
           </div>

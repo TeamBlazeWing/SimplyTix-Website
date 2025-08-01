@@ -32,7 +32,7 @@ const EventModal = ({ event, onClose, onEnroll, enrolling, currentUserId }) => {
           headers['Authorization'] = `Bearer ${token}`;
         }
         
-        const response = await fetch(`/api/enrollments/event/${event.id}`, {
+        const response = await fetch(`http://167.71.220.214:3000/api/enrollments/event/${event.id}`, {
           method: 'GET',
           headers
         });
