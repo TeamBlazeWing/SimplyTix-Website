@@ -459,7 +459,7 @@ const Myevents = () => {
         return;
       }
 
-      const eventResponse = await fetch(`http://localhost:3000/api/events/${event._id || event.id}`, {
+      const eventResponse = await fetch(`http://167.71.220.214:3000/api/events/${event._id || event.id}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -498,7 +498,7 @@ const Myevents = () => {
         }
       }
 
-      const response = await fetch(`http://localhost:3000/api/events/${event._id || event.id}`, {
+      const response = await fetch(`http://167.71.220.214:3000/api/events/${event._id || event.id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -547,7 +547,7 @@ const Myevents = () => {
         return;
       }
 
-      const eventResponse = await fetch(`http://localhost:3000/api/events/${event._id || event.id}`, {
+      const eventResponse = await fetch(`http://167.71.220.214:3000/api/events/${event._id || event.id}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,

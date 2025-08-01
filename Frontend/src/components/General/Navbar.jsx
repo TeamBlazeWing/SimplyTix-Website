@@ -88,7 +88,7 @@ const Navbar = ({ username, onLogout }) => {
         }
         return;
       }
-      const response = await fetch(`http://localhost:3000/api/notifications/${notificationId}/read`, {
+      const response = await fetch(`http://167.71.220.214:3000/api/notifications/${notificationId}/read`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

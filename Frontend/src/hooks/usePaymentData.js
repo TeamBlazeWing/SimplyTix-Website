@@ -279,7 +279,7 @@ const usePaymentData = () => {
           // Upload QR code to server
           let imageUrl = "https://example.com/default-image.jpg"; // Fallback URL
           try {
-            const uploadResponse = await fetch("http://localhost:3000/api/upload/image", {
+            const uploadResponse = await fetch("http://167.71.220.214:3000/api/upload/image", {
               method: "POST",
               headers: {
                 Authorization: `Bearer ${token}`,
