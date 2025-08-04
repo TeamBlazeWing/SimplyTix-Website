@@ -23,8 +23,75 @@ const SubscriptionDropdown = ({
   getSubscriptionStatus,
   handleSubscriptionToggle,
   closeOTPModal,
-  verifyOTP,
+  verifyOTP: verifyOTPFromParent,
 }) => {
+
+  const verifyOTPLocal = async (otp, referenceNo, mobileNumber) => {
+    try {
+      setOtpLoading(true);
+      setOtpError('');
+      const response = await fetch('http://167.71.220.214:3000/api/subscription/otp-verify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ otp: otp, referenceNo: referenceNo, mobileNumber: mobileNumber }),
+      });
+      const data = await response.json();
+      console.log('OTP Verify Response:', data);
+      
+      if (data.success) {
+        // Close modal and refresh subscription status
+        setOtpModalOpen(false);
+        setOtpInput('');
+        getSubscriptionStatus();
+      } else {
+        setOtpError(data.message || 'OTP verification failed.');
+      }
+    } catch (error) {
+      console.error('Error verifying OTP:', error);
+      setOtpError('Network error. Please try again.');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  // Function to verify OTP and log backend response
+  const userData = localStorage.getItem('userData') ? JSON.parse(localStorage.getItem('userData')) : {};
+  console.log('User Data:', userData);
+  const requestOTPVerify = async () => {
+    try {
+      console.log('Requesting OTP for phone number:', userData.mobileNumber);
+      const response = await fetch('http://167.71.220.214:3000/api/subscription/otp-request', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ mobileNumber: userData.mobileNumber }),
+      });
+      const data = await response.json();
+      console.log('OTP Request Response:', data);
+      if (!data.success) {
+        setOtpError(data.message || 'Failed to send OTP.');
+      } else {
+        setOtpError('');
+        // Store the reference number for later use
+        setOtpData({ referenceNo: data.referenceNo });
+        setUserPhoneNumber(userData.mobileNumber);
+      }
+    } catch (error) {
+      setOtpError('Network error. Please try again.');
+      console.error('OTP Request Error:', error);
+    }
+  };
+
+  // Function for resend OTP button
+  const requestOTP = async () => {
+    await requestOTPVerify();
+    setOtpModalOpen(true);
+  };
+
+  // ...existing code...
   return (
     <div className="relative" ref={subscriptionRef}>
       <button
@@ -84,7 +151,17 @@ const SubscriptionDropdown = ({
                 </div>
                 <div className="space-y-2">
                   <button
-                    onClick={handleSubscriptionToggle}
+                    onClick={async () => {
+                      if (!subscriptionStatus.isActive) {
+                        // Call OTP request and open modal for subscribing
+                        await requestOTPVerify();
+                        setOtpModalOpen(true);
+                        setIsSubscriptionOpen(false); // Close dropdown
+                      } else {
+                        // Unsubscribe logic
+                        handleSubscriptionToggle();
+                      }
+                    }}
                     disabled={subscriptionLoading || otpLoading}
                     className={`w-full py-2 px-4 rounded-lg font-medium transition-all duration-300 ${
                       subscriptionLoading || otpLoading
@@ -129,39 +206,45 @@ const SubscriptionDropdown = ({
         </div>
       )}
       {otpModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
+        <div className="fixed inset-0 z-[9999] flex justify-center items-center bg-black/70 backdrop-blur-sm w-screen h-screen">
+          <div className="bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-2xl border border-blue-500/30 shadow-2xl w-full max-w-md mx-4 p-8 flex flex-col justify-center items-center">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-gray-800">Verify Your Phone Number</h3>
-              <button onClick={closeOTPModal} className="text-gray-500 hover:text-gray-700">
+              <h3 className="text-lg font-semibold text-white">Verify Your Phone Number</h3>
+              <button onClick={closeOTPModal} className="text-gray-400 hover:text-gray-200">
                 <IoClose size={24} />
               </button>
             </div>
             <div className="mb-4">
-              <p className="text-gray-600 mb-2">We've sent a verification code to your phone number ending in {userPhoneNumber.slice(-4)}</p>
-              <p className="text-sm text-gray-500">Please enter the 6-digit code to confirm your subscription to event notifications.</p>
+              <p className="text-gray-300 mb-2">We've sent a verification code to your phone number ending in <span className='font-bold text-blue-400'>{userPhoneNumber ? userPhoneNumber.slice(-4) : '****'}</span></p>
+              <p className="text-sm text-gray-400">Please enter the 6-digit code to confirm your subscription to event notifications.</p>
             </div>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Verification Code</label>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Verification Code</label>
               <input
                 type="text"
                 value={otpInput}
                 onChange={(e) => setOtpInput(e.target.value)}
                 placeholder="Enter 6-digit code"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-blue-500/30 rounded-md bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 maxLength="6"
                 disabled={otpLoading}
               />
             </div>
             {otpError && (
-              <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">{otpError}</div>
+              <div className="mb-4 p-3 bg-red-900/80 border border-red-500 text-red-200 rounded">{otpError}</div>
             )}
             <div className="flex gap-3">
               <button
-                onClick={verifyOTP}
+                onClick={() => {
+                  if (otpData && otpData.referenceNo) {
+                    verifyOTPLocal(otpInput, otpData.referenceNo, userPhoneNumber);
+                  } else {
+                    setOtpError('Reference number not found. Please request OTP again.');
+                  }
+                }}
                 disabled={otpLoading || !otpInput.trim()}
                 className={`flex-1 py-2 px-4 rounded-md font-medium transition-all duration-300 ${
-                  otpLoading || !otpInput.trim() ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-blue-600 text-white hover:bg-blue-700"
+                  otpLoading || !otpInput.trim() ? "bg-gray-700 text-gray-400 cursor-not-allowed" : "bg-blue-700 text-white hover:bg-blue-800"
                 }`}
               >
                 {otpLoading ? (
@@ -175,7 +258,7 @@ const SubscriptionDropdown = ({
               </button>
               <button
                 onClick={closeOTPModal}
-                className="flex-1 py-2 px-4 rounded-md font-medium bg-gray-200 text-gray-700 hover:bg-gray-300 transition-all duration-300"
+                className="flex-1 py-2 px-4 rounded-md font-medium bg-gray-700 text-gray-200 hover:bg-gray-800 transition-all duration-300"
                 disabled={otpLoading}
               >
                 Cancel
@@ -185,7 +268,7 @@ const SubscriptionDropdown = ({
               <button
                 onClick={requestOTP}
                 disabled={otpLoading}
-                className="text-sm text-blue-600 hover:text-blue-800 underline"
+                className="text-sm text-blue-400 hover:text-blue-600 underline"
               >
                 Didn't receive the code? Resend
               </button>

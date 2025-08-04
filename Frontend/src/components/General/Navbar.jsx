@@ -137,6 +137,7 @@ const Navbar = ({ username, onLogout }) => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const userData = await response.json();
+      localStorage.setItem("userData", JSON.stringify(userData)); // Store user data in localStorage
       console.log("User profile data:", userData);
        // <-- Set points from profile
       const isActive = userData.subscriptionStatus === "active";
