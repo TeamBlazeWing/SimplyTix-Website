@@ -78,6 +78,46 @@ const Login = () => {
           userId: localStorage.getItem("userId"),
         });
 
+        // Fetch subscription status and update it in the backend
+        try {
+          const statusResponse = await fetch('http://localhost:3008/api/subscription/get-status', {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+
+          const statusData = await statusResponse.json();
+          console.log('External subscription status response:', statusData);
+
+          if (statusData.success) {
+            const subscriptionStatus = statusData.isActive ? 'active' : 'inactive';
+            console.log('Mapped subscription status:', subscriptionStatus);
+
+            const updateResponse = await fetch('http://localhost:3000/api/users/profile/subscription-status', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+              },
+              body: JSON.stringify({ status: subscriptionStatus }),
+            });
+
+            const updateData = await updateResponse.json();
+            console.log('Full update subscription status response:', updateData);
+
+            if (updateData.success) {
+              console.log(`Subscription status successfully updated in the database to: ${subscriptionStatus}`);
+            } else {
+              console.error('Failed to update subscription status:', updateData.message || 'No message provided');
+            }
+          } else {
+            console.error('Failed to fetch external subscription status:', statusData.message || 'External API error');
+          }
+        } catch (error) {
+          console.error('Error fetching or updating subscription status:', error);
+        }
+
         // Success animation before redirect
         setErrors({ general: "✅ Login successful! Redirecting..." });
         setTimeout(() => navigate("/dashboard"), 1500);

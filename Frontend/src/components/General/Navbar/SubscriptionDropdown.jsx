@@ -30,7 +30,7 @@ const SubscriptionDropdown = ({
     try {
       setOtpLoading(true);
       setOtpError('');
-      const response = await fetch('http://167.71.220.214:3000/api/subscription/otp-verify', {
+      const response = await fetch('http://localhost:3008/api/subscription/otp-verify', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -41,6 +41,8 @@ const SubscriptionDropdown = ({
       console.log('OTP Verify Response:', data);
       
       if (data.success) {
+        // After successful OTP verification, check subscription status
+        await checkAndUpdateSubscriptionStatus();
         // Close modal and refresh subscription status
         setOtpModalOpen(false);
         setOtpInput('');
@@ -56,13 +58,64 @@ const SubscriptionDropdown = ({
     }
   };
 
+  // Function to check subscription status and update user data
+  const checkAndUpdateSubscriptionStatus = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        console.error('Authorization token is missing.');
+        return;
+      }
+
+      // First, get the current subscription status from the external API
+      const statusResponse = await fetch('http://localhost:3008/api/subscription/get-status', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const statusData = await statusResponse.json();
+      console.log('External subscription status response:', statusData);
+
+      if (statusData.success) {
+        // Determine the status value to send
+        const subscriptionStatus = statusData.isActive ? 'active' : 'inactive';
+        console.log('Mapped subscription status:', subscriptionStatus);
+
+        // Update subscription status in the backend database
+        const updateResponse = await fetch('http://localhost:3000/api/users/profile/subscription-status', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ status: subscriptionStatus }),
+        });
+
+        const updateData = await updateResponse.json();
+        console.log('Update subscription status response:', updateData);
+
+        if (updateData.success) {
+          console.log(`Subscription status successfully updated in the database to: ${subscriptionStatus}`);
+        } else {
+          console.error('Failed to update subscription status:', updateData.message || 'No message provided');
+        }
+      } else {
+        console.error('Failed to fetch external subscription status:', statusData.message || 'External API error');
+      }
+    } catch (error) {
+      console.error('Error checking or updating subscription status:', error);
+    }
+  };
+
   // Function to verify OTP and log backend response
   const userData = localStorage.getItem('userData') ? JSON.parse(localStorage.getItem('userData')) : {};
   console.log('User Data:', userData);
   const requestOTPVerify = async () => {
     try {
       console.log('Requesting OTP for phone number:', userData.mobileNumber);
-      const response = await fetch('http://167.71.220.214:3000/api/subscription/otp-request', {
+      const response = await fetch('http://localhost:3008/api/subscription/otp-request', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -89,6 +142,35 @@ const SubscriptionDropdown = ({
   const requestOTP = async () => {
     await requestOTPVerify();
     setOtpModalOpen(true);
+  };
+
+  // Function to handle unsubscription
+  const handleUnsubscribe = async () => {
+    try {
+      const userData = localStorage.getItem('userData') ? JSON.parse(localStorage.getItem('userData')) : {};
+      const maskedMobile = `tel:${userData.mobileNumber}`;
+
+      const response = await fetch('http://localhost:3008/api/subscription/unsubscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ maskedMobile }),
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        // Update local storage
+        updateSubscriptionStatus(false, data.subscriptionStatus || 'inactive');
+        // Refresh the subscription status in the component
+        getSubscriptionStatus();
+        console.log('Successfully unsubscribed');
+      } else {
+        console.error('Unsubscribe failed:', data.message);
+      }
+    } catch (error) {
+      console.error('Error unsubscribing:', error);
+    }
   };
 
   // ...existing code...
@@ -159,7 +241,7 @@ const SubscriptionDropdown = ({
                         setIsSubscriptionOpen(false); // Close dropdown
                       } else {
                         // Unsubscribe logic
-                        handleSubscriptionToggle();
+                        handleUnsubscribe();
                       }
                     }}
                     disabled={subscriptionLoading || otpLoading}

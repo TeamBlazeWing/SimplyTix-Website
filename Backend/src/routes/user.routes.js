@@ -94,4 +94,9 @@ router.post('/login', validate(loginSchema), userController.loginUser);
  */
 router.get('/profile', auth, userController.getProfile);
 
+
+router.get('/profile/subscription-status', auth, userController.getSubscriptionStatus);
+
+router.post('/profile/subscription-status', auth, userController.updateSubscriptionStatus);
+
 module.exports = router;
