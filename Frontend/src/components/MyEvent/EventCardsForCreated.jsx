@@ -1,5 +1,6 @@
-import React from 'react';
-import { FaBell, FaEdit, FaTrash } from 'react-icons/fa';
+import React, { useState } from 'react';
+import { FaBell, FaEdit, FaTrash, FaQrcode } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 const EventCardsForCreated = ({
   events,
@@ -9,6 +10,12 @@ const EventCardsForCreated = ({
   onDeleteEvent,
   onNotifyAttendees
 }) => {
+  const navigate = useNavigate();
+
+  const handleTicketValidation = (event) => {
+    navigate(`/validate-ticket/${event._id || event.id}`);
+  };
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-10 px-4">
       {events.map((event, idx) => {
@@ -84,6 +91,15 @@ const EventCardsForCreated = ({
                       <FaTrash /> Delete
                     </button>
                   </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleTicketValidation(event);
+                    }}
+                    className="flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold py-2 rounded-lg shadow-md transition-all duration-300"
+                  >
+                    <FaQrcode className="text-lg" /> Ticket Validate
+                  </button>
                 </div>
               )}
 

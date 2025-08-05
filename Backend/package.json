@@ -17,6 +17,7 @@
     "cors": "^2.8.5",
     "dotenv": "^17.0.0",
     "express": "^5.1.0",
+    "html5-qrcode": "^2.3.8",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "6.17",
