@@ -4,7 +4,8 @@ exports.otpRequest = async (req, res) => {
   try {
     const { mobileNumber } = req.body;
     const referenceNo = await service.requestOtp(mobileNumber);
-    res.json({ success: true, referenceNo });
+    console.log('OTP request result:', referenceNo);
+    res.json({ success: true, referenceNo: referenceNo });
   } catch (e) {
     res.status(400).json({ success: false, message: e.message });
   }
@@ -22,8 +23,8 @@ exports.otpVerify = async (req, res) => {
 
 exports.getStatus = async (req, res) => {
   try {
-    const { maskedMobile } = req.body;
-    const status = await service.getSubscriptionStatus(maskedMobile);
+    const { mobileNumber } = req.body;
+    const status = await service.getSubscriptionStatus(mobileNumber);
     res.json({ success: true, subscriptionStatus: status });
   } catch (e) {
     res.status(400).json({ success: false, message: e.message });

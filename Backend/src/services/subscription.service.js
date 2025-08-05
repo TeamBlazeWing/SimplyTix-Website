@@ -32,11 +32,13 @@ exports.verifyOtp = async (referenceNo, otp, mobileNumber) => {
   const payload = {
     applicationId: MSPACE_APP_ID,
     password: MSPACE_PASSWORD,
-    referenceNo,
-    otp
+    referenceNo: referenceNo,
+    otp: otp,
   };
 
   const res = await axios.post(OTP_VERIFY_URL, payload);
+  console.log('OTP verification response:', res.data);
+
   const status = res.data.subscriptionStatus;
   const user = await User.findOne({ mobileNumber });
   if (!user) throw new Error('User not found');
@@ -54,14 +56,14 @@ exports.verifyOtp = async (referenceNo, otp, mobileNumber) => {
   return { subscriptionStatus: status, user };
 };
 
-exports.getSubscriptionStatus = async (maskedMobile) => {
+exports.getSubscriptionStatus = async (mobileNumber) => {
   const payload = {
     applicationId: MSPACE_APP_ID,
     password: MSPACE_PASSWORD,
-    subscriberId: maskedMobile
+    subscriberId: 'tel:' + mobileNumber
   };
   const res = await axios.post(STATUS_URL, payload);
-  return res.data.subscriptionStatus;
+  return res.data;
 };
 
 exports.unsubscribe = async (maskedMobile) => {
