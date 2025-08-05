@@ -44,8 +44,8 @@ app.get('/api/subscription/get-status', (req, res) => {
   return res.json({ 
     success: true, 
     verified: true,
-    isActive: true, // Use the actual subscription status
-    message: 'Subscription is active' 
+    isActive: userSubscriptionStatus,
+    message: userSubscriptionStatus ? 'Subscription is active' : 'Subscription is inactive'
   });
 });
 

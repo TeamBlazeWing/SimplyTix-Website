@@ -66,7 +66,24 @@ const useTicketData = () => {
           }
         }
         
-        const processedTickets = processTickets(ticketsData);
+        // Debug: Log the raw ticket data to ensure ticketCode is present
+        console.log("Raw tickets from backend:", ticketsData);
+        
+        // Ensure each ticket has a proper ticketCode
+        const ticketsWithCodes = ticketsData.map(ticket => {
+          if (!ticket.ticketCode) {
+            console.warn("Ticket missing ticketCode:", ticket._id);
+          }
+          return {
+            ...ticket,
+            // Ensure ticketCode exists, fallback to _id if needed
+            ticketCode: ticket.ticketCode || ticket._id
+          };
+        });
+        
+        const processedTickets = processTickets(ticketsWithCodes);
+        console.log("Processed tickets with codes:", processedTickets);
+        
         setTickets(processedTickets);
         const qrCodeMap = await generateQRCodes(processedTickets);
         setQrCodes(qrCodeMap);
@@ -108,7 +125,8 @@ const useTicketData = () => {
       filtered = filtered.filter(ticket =>
         ticket.eventId?.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         ticket.ticketType?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        ticket.eventId?.location?.toLowerCase().includes(searchTerm.toLowerCase())
+        ticket.eventId?.location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        ticket.ticketCode?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
