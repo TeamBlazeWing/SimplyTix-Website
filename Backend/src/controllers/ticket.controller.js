@@ -12,3 +12,15 @@ exports.getMyTickets = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.getAllTicketCount = async (req, res, next) => {
+  try {
+    const count = await ticketService.getallTicketCount();
+    res.status(200).json({
+      success: true,
+      totalTickets: count
+    });
+  } catch (err) {
+    next(err);
+  }
+};

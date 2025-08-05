@@ -26,4 +26,6 @@ const auth = require('../middlewares/auth.middleware');
  */
 router.get('/my', auth, ticketController.getMyTickets);
 
+router.get('/count', auth, ticketController.getAllTicketCount);
+
 module.exports = router;

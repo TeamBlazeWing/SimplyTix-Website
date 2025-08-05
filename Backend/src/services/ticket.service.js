@@ -30,3 +30,8 @@ exports.getMyTickets = async (userId) => {
   const tickets = await Ticket.find({ userId: userId }).populate('eventId', 'title date location imageUrl description type');
   return tickets;
 };  
+
+exports.getallTicketCount = async () => {
+  const ticketCount = await Ticket.countDocuments();
+  return ticketCount;
+};
