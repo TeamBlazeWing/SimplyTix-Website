@@ -53,16 +53,22 @@ exports.verifyOtp = async (referenceNo, otp, mobileNumber) => {
   }
 
   await user.save();
-  return { subscriptionStatus: status, user };
+  return { subscriptionStatus: status, user};
 };
 
-exports.getSubscriptionStatus = async (mobileNumber) => {
+exports.getSubscriptionStatus = async (maskedMobile) => {
   const payload = {
     applicationId: MSPACE_APP_ID,
     password: MSPACE_PASSWORD,
-    subscriberId: 'tel:' + mobileNumber
+    subscriberId: maskedMobile
   };
+  console.log('Fetching subscription status with payload:', payload);
   const res = await axios.post(STATUS_URL, payload);
+  console.log('Subscription status response:', res.data);
+
+  const user = await User.findOne({ maskedMobile });
+  user.subscriptionStatus = res.data.subscriptionStatus === 'REGISTERED' ? 'active' : 'inactive';
+  await user.save();
   return res.data;
 };
 

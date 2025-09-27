@@ -23,8 +23,8 @@ exports.otpVerify = async (req, res) => {
 
 exports.getStatus = async (req, res) => {
   try {
-    const { mobileNumber } = req.body;
-    const status = await service.getSubscriptionStatus(mobileNumber);
+    const { maskedMobile } = req.body;
+    const status = await service.getSubscriptionStatus(maskedMobile);
     res.json({ success: true, subscriptionStatus: status });
   } catch (e) {
     res.status(400).json({ success: false, message: e.message });
