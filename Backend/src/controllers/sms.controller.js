@@ -20,9 +20,10 @@ exports.handleIncomingSMS = async (req, res) => {
 
 exports.sendEventUpdate = async (req, res) => {
   try {
-    const { eventId, userId, updateMessage } = req.body;
-    
-    const result = await smsService.sendEventUpdate(eventId, userId, updateMessage);
+    const { eventId, notificationMessage } = req.body;
+    const createdBy = req.user.id;
+
+    const result = await smsService.sendEventUpdate(eventId, createdBy, notificationMessage);
     
     res.status(200).json({ 
       success: true, 
@@ -33,6 +34,24 @@ exports.sendEventUpdate = async (req, res) => {
     res.status(500).json({ 
       success: false, 
       message: error.message 
+    });
+  }
+};
+
+exports.sendConfirmationMessage = async (req, res) => {
+  try {
+    const { confirmationMessage } = req.body;
+    const userId = req.user.id;
+    const result = await smsService.sendConfirmationMessage(userId, confirmationMessage);
+    res.status(200).json({ 
+      success: true, 
+      message: 'Confirmation message sent successfully',
+      result 
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false,
+      message: error.message
     });
   }
 };
