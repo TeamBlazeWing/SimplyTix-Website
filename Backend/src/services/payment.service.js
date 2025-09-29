@@ -1,5 +1,6 @@
 const User = require('../models/user.model');
 const Payment = require('../models/payment.model');
+const axios = require('axios');
 const Ticket = require('../models/ticket.model');
 const TicketService = require('./ticket.service');
 const eventService = require('./event.service');
@@ -40,7 +41,7 @@ exports.buyTickets = async (eventId, tickets, method, userId) => {
     });
 
     // Process actual payment
-    const paymentResult = await processPayment(method, totalAmount, pendingPayment._id);
+    const paymentResult = await processPayment(method, userId, totalAmount, pendingPayment._id);
     
     if (!paymentResult.success) {
       // Update payment status to failed
@@ -83,7 +84,7 @@ exports.buyPoints = async (pointsAmount, method, userId) => {
     }
 
     // Points pricing: 1 point = 10 currency units
-    const totalAmount = pointsAmount * 10;
+    const totalAmount = pointsAmount * 1; // Adjusted to 1:1 for simplicity
 
     // Create pending payment
     const pendingPayment = await Payment.create({
@@ -95,7 +96,7 @@ exports.buyPoints = async (pointsAmount, method, userId) => {
     });
 
     // Process payment
-    const paymentResult = await processPayment(method, totalAmount, pendingPayment._id);
+    const paymentResult = await processPayment(method, userId, totalAmount, pendingPayment._id);
     
     if (!paymentResult.success) {
       await Payment.findByIdAndUpdate(pendingPayment._id, { status: 'failed' });
@@ -154,16 +155,16 @@ exports.verifyPayment = async (paymentId, userId) => {
 }
 
 // Actual payment processing function
-const processPayment = async (method, amount, paymentId) => {
+const processPayment = async (method, userId, amount, paymentId) => {
   try {
     switch (method) {
       case 'card':
       case 'credit': // Handle both 'card' and 'credit' from frontend
-        return await processCardPayment(amount, paymentId);
+        return await processCardPayment(userId, amount, paymentId);
       case 'mobile':
-        return await processMobilePayment(amount, paymentId);
+        return await processMobilePayment(userId, amount, paymentId);
       case 'paypal':
-        return await processPayPalPayment(amount, paymentId);
+        return await processPayPalPayment(userId, amount, paymentId);
       default:
         throw new Error('Invalid payment method');
     }
@@ -173,7 +174,7 @@ const processPayment = async (method, amount, paymentId) => {
 };
 
 // Payment gateway integrations
-const processCardPayment = async (amount, paymentId) => {
+const processCardPayment = async (userId, amount, paymentId) => {
   // Integrate with Stripe, Square, etc.
   // For now, simulate success
   return { 
@@ -182,15 +183,45 @@ const processCardPayment = async (amount, paymentId) => {
   };
 };
 
-const processMobilePayment = async (amount, paymentId) => {
-  // Integrate with mSpace, mobile money, etc.
-  return { 
-    success: true, 
-    transactionId: `mobile_${paymentId}_${Date.now()}` 
-  };
+const processMobilePayment = async (userId, amount, paymentId) => {
+  console.log('Processing mobile payment...');
+  try {
+    const user = await User.findById(userId);
+    if (!user || !user.maskedMobile) {
+      throw new Error('User mobile number not found');
+    }
+    const maskedMobile = user.maskedMobile;
+
+    const payload = {
+      applicationId: MSPACE_APP_ID,
+      password: MSPACE_PASSWORD,
+      externalTrxId: `mobile_${paymentId}`,
+      subscriberId: maskedMobile,
+      paymentInstrumentName: "Mobile Account",
+      amount: amount.toString(),
+      currency: "LKR"
+    };
+
+    console.log('Mobile payment payload:', payload);
+
+    const res = await axios.post(CAAS_DIRECT_DEBIT_URL, payload);
+
+    console.log('Mobile payment response:', res.data);
+
+    if (res.data.statusCode !== 'S1000') {
+      throw new Error('Mobile payment failed: ' + res.data.statusDetail);
+    }
+
+    return {
+      success: true,
+      transactionId: `mobile_${paymentId}`
+    };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
 };
 
-const processPayPalPayment = async (amount, paymentId) => {
+const processPayPalPayment = async (userId, amount, paymentId) => {
   // Integrate with PayPal API
   return { 
     success: true, 
