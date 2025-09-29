@@ -54,7 +54,7 @@ const ValidateTicket = () => {
       console.log("Verifying ticket code:", tktCode);
 
       // Call backend API to verify ticket
-      const response = await fetch(`http://localhost:3000/api/tickets/verify`, {
+      const response = await fetch(`http://167.71.220.214:3000/api/tickets/verify`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

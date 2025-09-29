@@ -20,9 +20,10 @@ exports.handleIncomingSMS = async (req, res) => {
 
 exports.sendEventUpdate = async (req, res) => {
   try {
-    const { eventId, userId, updateMessage } = req.body;
-    
-    const result = await smsService.sendEventUpdate(eventId, userId, updateMessage);
+    const { eventId, updateMessage } = req.body;
+    const createdBy = req.user.id;
+
+    const result = await smsService.sendEventUpdate(eventId, createdBy, updateMessage);
     
     res.status(200).json({ 
       success: true, 

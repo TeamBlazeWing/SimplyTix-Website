@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef } from "react";
 import { FaRss, FaCheck } from "react-icons/fa6";
 import { IoClose } from "react-icons/io5";
 import "./styles.css";
@@ -21,16 +22,50 @@ const SubscriptionDropdown = ({
   userPhoneNumber,
   setUserPhoneNumber,
   getSubscriptionStatus,
-  handleSubscriptionToggle,
   closeOTPModal,
-  verifyOTP: verifyOTPFromParent,
+  handleLogout,
 }) => {
+
+  // Countdown state
+  const [showCountdown, setShowCountdown] = useState(false);
+  const [countdownTime, setCountdownTime] = useState(60);
+  const countdownIntervalRef = useRef(null);
+
+  // Start countdown after successful subscription
+  const startCountdown = () => {
+    setShowCountdown(true);
+    setCountdownTime(60);
+    
+    countdownIntervalRef.current = setInterval(() => {
+      setCountdownTime(prevTime => {
+        if (prevTime <= 1) {
+          clearInterval(countdownIntervalRef.current);
+          setShowCountdown(false);
+          // Logout user after countdown
+          if (handleLogout) {
+            handleLogout();
+          }
+          return 0;
+        }
+        return prevTime - 1;
+      });
+    }, 1000);
+  };
+
+  // Clean up interval on component unmount
+  useEffect(() => {
+    return () => {
+      if (countdownIntervalRef.current) {
+        clearInterval(countdownIntervalRef.current);
+      }
+    };
+  }, []);
 
   const verifyOTPLocal = async (otp, referenceNo, mobileNumber) => {
     try {
       setOtpLoading(true);
       setOtpError('');
-      const response = await fetch('http://localhost:3008/api/subscription/otp-verify', {
+      const response = await fetch('http://167.71.220.214:3000/api/subscription/otp-verify', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -47,6 +82,8 @@ const SubscriptionDropdown = ({
         setOtpModalOpen(false);
         setOtpInput('');
         getSubscriptionStatus();
+        // Start countdown timer for logout
+        startCountdown();
       } else {
         setOtpError(data.message || 'OTP verification failed.');
       }
@@ -68,12 +105,18 @@ const SubscriptionDropdown = ({
       }
 
       // First, get the current subscription status from the external API
-      const statusResponse = await fetch('http://localhost:3008/api/subscription/get-status', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      const userData = localStorage.getItem('userData');
+      const maskedMobile = userData.maskedMobile;
+      const statusResponse = await fetch("http://167.71.220.214:3000/api/subscription/get-status", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+              maskedMobile: maskedMobile,
+              }),
+            });
 
       const statusData = await statusResponse.json();
       console.log('External subscription status response:', statusData);
@@ -84,7 +127,7 @@ const SubscriptionDropdown = ({
         console.log('Mapped subscription status:', subscriptionStatus);
 
         // Update subscription status in the backend database
-        const updateResponse = await fetch('http://localhost:3000/api/users/profile/subscription-status', {
+        const updateResponse = await fetch('http://167.71.220.214:3000/api/users/profile/subscription-status', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -115,7 +158,7 @@ const SubscriptionDropdown = ({
   const requestOTPVerify = async () => {
     try {
       console.log('Requesting OTP for phone number:', userData.mobileNumber);
-      const response = await fetch('http://localhost:3008/api/subscription/otp-request', {
+      const response = await fetch('http://167.71.220.214:3000/api/subscription/otp-request', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -148,9 +191,9 @@ const SubscriptionDropdown = ({
   const handleUnsubscribe = async () => {
     try {
       const userData = localStorage.getItem('userData') ? JSON.parse(localStorage.getItem('userData')) : {};
-      const maskedMobile = `tel:${userData.mobileNumber}`;
+      const maskedMobile = userData.maskedMobile;
 
-      const response = await fetch('http://localhost:3008/api/subscription/unsubscribe', {
+      const response = await fetch('http://167.71.220.214:3000/api/subscription/unsubscribe', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -160,8 +203,6 @@ const SubscriptionDropdown = ({
       const data = await response.json();
       
       if (data.success) {
-        // Update local storage
-        updateSubscriptionStatus(false, data.subscriptionStatus || 'inactive');
         // Refresh the subscription status in the component
         getSubscriptionStatus();
         console.log('Successfully unsubscribed');
@@ -354,6 +395,39 @@ const SubscriptionDropdown = ({
               >
                 Didn't receive the code? Resend
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Countdown Modal */}
+      {showCountdown && (
+        <div className="fixed inset-0 z-[10000] flex justify-center items-center bg-black/80 backdrop-blur-sm w-screen h-screen">
+          <div className="bg-gradient-to-br from-green-900 via-black to-green-900 rounded-2xl border border-green-500/30 shadow-2xl w-full max-w-md mx-4 p-8 flex flex-col justify-center items-center">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+                <FaCheck className="text-white text-2xl" />
+              </div>
+              <h3 className="text-2xl font-bold text-green-400 mb-2">Successfully Subscribed!</h3>
+              <p className="text-gray-300 mb-4">You have been subscribed to event notifications.</p>
+            </div>
+            
+            <div className="bg-black/50 rounded-xl p-6 w-full text-center border border-green-500/20">
+              <div className="text-4xl font-bold text-green-400 mb-2">
+                {Math.floor(countdownTime / 60)}:{(countdownTime % 60).toString().padStart(2, '0')}
+              </div>
+              <p className="text-gray-400 text-sm mb-4">
+                Waiting for subscription activation...
+              </p>
+              <div className="w-full bg-gray-700 rounded-full h-2 mb-4">
+                <div 
+                  className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full transition-all duration-1000"
+                  style={{ width: `${((60 - countdownTime) / 60) * 100}%` }}
+                ></div>
+              </div>
+              <p className="text-yellow-400 text-xs">
+                You will be logged out automatically when the timer reaches zero.
+              </p>
             </div>
           </div>
         </div>

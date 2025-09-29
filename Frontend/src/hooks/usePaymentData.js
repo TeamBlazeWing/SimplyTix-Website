@@ -194,7 +194,7 @@ const usePaymentData = () => {
 
       const backendPaymentMethod = paymentMethod === "credit" ? "card" : paymentMethod;
 
-      const response = await fetch(`/api/payments/tickets/${eventId}`, {
+      const response = await fetch(`http://167.71.220.214:3000/api/payments/tickets/${eventId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -279,7 +279,7 @@ const usePaymentData = () => {
           // Upload QR code to server
           let imageUrl = "https://example.com/default-image.jpg"; // Fallback URL
           try {
-            const uploadResponse = await fetch("http://localhost:3000/api/upload/image", {
+            const uploadResponse = await fetch("http://167.71.220.214:3000/api/upload/image", {
               method: "POST",
               headers: {
                 Authorization: `Bearer ${token}`,

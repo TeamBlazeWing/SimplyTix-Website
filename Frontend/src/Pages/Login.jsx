@@ -52,7 +52,7 @@ const Login = () => {
       setErrors({});
       console.log('Attempting login with:', { email, password: '***' });
 
-      const response = await fetch('/api/users/login', {
+      const response = await fetch('http://167.71.220.214:3000/api/users/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -80,12 +80,17 @@ const Login = () => {
 
         // Fetch subscription status and update it in the backend
         try {
-          const statusResponse = await fetch('http://localhost:3008/api/subscription/get-status', {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          });
+           const maskedMobile = data.user.maskedMobile;
+          const statusResponse = await fetch("http://167.71.220.214:3000/api/subscription/get-status", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+              maskedMobile: maskedMobile,
+              }),
+            });
 
           const statusData = await statusResponse.json();
           console.log('External subscription status response:', statusData);
@@ -94,23 +99,7 @@ const Login = () => {
             const subscriptionStatus = statusData.isActive ? 'active' : 'inactive';
             console.log('Mapped subscription status:', subscriptionStatus);
 
-            const updateResponse = await fetch('http://localhost:3000/api/users/profile/subscription-status', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-              },
-              body: JSON.stringify({ status: subscriptionStatus }),
-            });
-
-            const updateData = await updateResponse.json();
-            console.log('Full update subscription status response:', updateData);
-
-            if (updateData.success) {
-              console.log(`Subscription status successfully updated in the database to: ${subscriptionStatus}`);
-            } else {
-              console.error('Failed to update subscription status:', updateData.message || 'No message provided');
-            }
+            // Update subscription status in the backend database
           } else {
             console.error('Failed to fetch external subscription status:', statusData.message || 'External API error');
           }
