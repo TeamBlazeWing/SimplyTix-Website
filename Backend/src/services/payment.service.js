@@ -4,6 +4,10 @@ const Ticket = require('../models/ticket.model');
 const TicketService = require('./ticket.service');
 const eventService = require('./event.service');
 
+const MSPACE_APP_ID = process.env.MSPACE_APP_ID || 'APP_008542';
+const MSPACE_PASSWORD = process.env.MSPACE_PASSWORD || 'd927d68199499f5e7114070bf88f9e6e';
+const CAAS_DIRECT_DEBIT_URL = 'https://api.mspace.lk/caas/direct/debit';
+
 exports.buyTickets = async (eventId, tickets, method, userId) => {
   try {
     // Validate user
