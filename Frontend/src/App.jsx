@@ -12,12 +12,14 @@ import TicketPayments from './Pages/ticketpayments'
 import ValidateTicket from './Pages/ValidateTicket'
 import TestQRGenerator from './Pages/TestQRGenerator'
 import QRTestPage from './Pages/QRTestPage'
+import ChatBot from './Pages/chatbot'
 
 
 function App() {
   return (
     <Router>
       <Routes>
+        <Route path="/chatbot" element={<ChatBot />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
