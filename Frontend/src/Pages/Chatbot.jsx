@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { FaCalendarAlt, FaMapMarkerAlt, FaBolt } from 'react-icons/fa';
 import simplytixLogo from '/simplytix.svg';
-import './Chatbot.css'; // You can leave this empty or use it for extras
+import './Chatbot.css';
 
 const ChatBot = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,9 +15,9 @@ const ChatBot = () => {
     if (!isOpen) {
       setMessages((prevMessages) => [
         ...prevMessages,
-        { 
-          sender: 'bot', 
-          text: 'Hello! I\'m **TixBot**, your SimplyTix assistant! 🎫\n\nI can help you with:\n- 🎪 Finding events and shows\n- 🎟️ Checking ticket prices and availability\n- 📅 Event schedules and locations\n- 💳 Payment and booking information\n- 👤 Account and booking history\n\nWhat would you like to know?' 
+        {
+          sender: 'bot',
+          text: 'Hello! I\'m **TixBot**, your SimplyTix assistant! 🎫\n\nI can help you with:\n- 🎪 Finding events and shows\n- 🎟️ Checking ticket prices and availability\n- 📅 Event schedules and locations\n- 💳 Payment and booking information\n- 👤 Account and booking history\n\nWhat would you like to know?'
         },
       ]);
     }
@@ -56,9 +56,9 @@ const ChatBot = () => {
       console.error('Error:', error);
       setMessages((prevMessages) => [
         ...prevMessages,
-        { 
-          sender: 'bot', 
-          text: '🔧 Oops! I encountered a technical issue. Please try again in a moment.\n\nIn the meantime, you can:\n- Browse events on the dashboard\n- Check your tickets\n- View your account details' 
+        {
+          sender: 'bot',
+          text: '🔧 Oops! I encountered a technical issue. Please try again in a moment.\n\nIn the meantime, you can:\n- Browse events on the dashboard\n- Check your tickets\n- View your account details'
         },
       ]);
     } finally {
@@ -87,21 +87,21 @@ const ChatBot = () => {
   }, [messages]);
 
   return (
-    <div className="fixed bottom-6 right-6 sm:bottom-6 sm:right-6 z-50">
+    <div className="fixed bottom-6 right-6 z-50">
       {isOpen ? (
-        <div className="bg-gradient-to-br from-indigo-600 via-purple-600 to-blue-600 shadow-2xl rounded-2xl w-full max-w-sm sm:rounded-2xl sm:w-96 h-[32rem] sm:h-[32rem] fixed bottom-0 right-0 sm:bottom-6 sm:right-6 flex flex-col chatbot-container backdrop-blur-sm border border-white/20">
+        <div className="bg-black shadow-2xl rounded-2xl w-full max-w-sm sm:w-96 h-[32rem] fixed bottom-0 right-0 sm:bottom-6 sm:right-6 flex flex-col chatbot-container border border-gray-700">
           {/* Header */}
-          <div className="flex justify-between items-center p-4 border-b border-white/20 chatbot-header bg-gradient-to-r from-purple-700/50 to-indigo-700/50 rounded-t-2xl backdrop-blur-sm">
+          <div className="flex justify-between items-center p-4 border-b border-gray-700 bg-gray-900 rounded-t-2xl">
             <div className="flex items-center gap-2">
               <img src={simplytixLogo} alt="SimplyTix Logo" className="w-8 h-8 rounded-full" />
               <div>
                 <h2 className="text-lg font-bold text-white">TixBot</h2>
-                <p className="text-xs text-purple-200">SimplyTix Assistant</p>
+                <p className="text-xs text-gray-400">SimplyTix Assistant</p>
               </div>
             </div>
-            <button 
-              onClick={toggleChat} 
-              className="text-white hover:text-purple-200 transition-colors p-1 rounded-full hover:bg-white/10"
+            <button
+              onClick={toggleChat}
+              className="text-gray-400 hover:text-white transition-colors p-1 rounded-full hover:bg-gray-800"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none"
                    viewBox="0 0 24 24" stroke="currentColor">
@@ -114,10 +114,7 @@ const ChatBot = () => {
           {/* Chat messages */}
           <div
             ref={chatContainerRef}
-            className="flex-1 p-4 overflow-y-auto bg-gray-200 dark:bg-gray-900 chatbot-body space-y-4"
-            style={{
-              background: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.9) 100%)'
-            }}
+            className="flex-1 p-4 overflow-y-auto bg-gray-950 space-y-4"
           >
             {messages.map((msg, index) => (
               <div
@@ -128,8 +125,8 @@ const ChatBot = () => {
                   {/* Avatar */}
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                     msg.sender === 'user'
-                      ? 'bg-gradient-to-br from-blue-500 to-purple-600'
-                      : 'bg-gradient-to-br from-indigo-500 to-purple-600'
+                      ? 'bg-gradient-to-br from-blue-500 to-cyan-600'
+                      : 'bg-gray-800'
                   }`}>
                     {msg.sender === 'user' ? (
                       <span className="text-white text-sm font-bold">U</span>
@@ -137,20 +134,20 @@ const ChatBot = () => {
                       <img src={simplytixLogo} alt="SimplyTix Logo" className="w-6 h-6" />
                     )}
                   </div>
-                  
+
                   {/* Message */}
                   <div
                     className={`p-3 rounded-2xl shadow-sm ${
                       msg.sender === 'user'
-                        ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-br-sm'
-                        : 'bg-white text-gray-800 border border-gray-200 rounded-bl-sm'
+                        ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-br-sm'
+                        : 'bg-gray-800 text-gray-200 border border-gray-700 rounded-bl-sm'
                     }`}
                   >
-                    <div className={`text-sm ${msg.sender === 'user' ? 'text-white' : 'text-gray-800'}`}>
-                      <ReactMarkdown 
+                    <div className={`text-sm ${msg.sender === 'user' ? 'text-white' : 'text-gray-200'}`}>
+                      <ReactMarkdown
                         components={{
                           p: ({children}) => <p className="mb-2 last:mb-0">{children}</p>,
-                          strong: ({children}) => <strong className={msg.sender === 'user' ? 'text-yellow-200' : 'text-purple-600'}>{children}</strong>
+                          strong: ({children}) => <strong className={msg.sender === 'user' ? 'text-yellow-200' : 'text-cyan-400'}>{children}</strong>
                         }}
                       >
                         {msg.text}
@@ -160,29 +157,29 @@ const ChatBot = () => {
                 </div>
               </div>
             ))}
-            
+
             {/* Typing indicator */}
             {isTyping && (
               <div className="flex justify-start">
                 <div className="flex items-start space-x-2">
-                  <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center">
-                    <img src={simplytixLogo} alt="SimplyTix Logo" className="w-8 h-8 rounded-full" />
+                  <div className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center">
+                    <img src={simplytixLogo} alt="SimplyTix Logo" className="w-6 h-6" />
                   </div>
-                  <div className="bg-white p-3 rounded-2xl rounded-bl-sm shadow-sm border border-gray-200">
+                  <div className="bg-gray-800 p-3 rounded-2xl rounded-bl-sm shadow-sm border border-gray-700">
                     <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce"></div>
-                      <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                      <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                      <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                      <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
                     </div>
                   </div>
                 </div>
               </div>
             )}
-            
-            {/* Quick suggestions when empty */}
+
+            {/* Quick suggestions */}
             {messages.length === 0 && (
               <div className="space-y-2">
-                <p className="text-gray-600 text-sm text-center mb-4">Try asking me about:</p>
+                <p className="text-gray-400 text-sm text-center mb-4">Try asking me about:</p>
                 {suggestedQuestions.map((question, index) => (
                   <button
                     key={index}
@@ -190,10 +187,10 @@ const ChatBot = () => {
                       setInputMessage(question);
                       setTimeout(() => sendMessage(), 100);
                     }}
-                    className="w-full text-left p-3 bg-white hover:bg-purple-50 border border-purple-200 rounded-lg text-sm text-gray-700 hover:text-purple-700 transition-colors shadow-sm hover:shadow-md"
+                    className="w-full text-left p-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg text-sm text-gray-200 hover:text-white transition-colors shadow-sm hover:shadow-md"
                   >
                     <div className="flex items-center space-x-2">
-                      <FaBolt className="text-purple-500 text-xs" />
+                      <FaBolt className="text-cyan-400 text-xs" />
                       <span>{question}</span>
                     </div>
                   </button>
@@ -203,7 +200,7 @@ const ChatBot = () => {
           </div>
 
           {/* Input */}
-          <div className="p-4 border-t border-white/20 bg-gradient-to-r from-purple-700/50 to-indigo-700/50 rounded-b-2xl chatbot-footer backdrop-blur-sm">
+          <div className="p-4 border-t border-gray-700 bg-gray-900 rounded-b-2xl">
             <div className="flex gap-2">
               <input
                 type="text"
@@ -212,12 +209,12 @@ const ChatBot = () => {
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
                 disabled={isTyping}
-                className="flex-1 px-4 py-3 bg-white/90 backdrop-blur-sm border border-white/30 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-300 focus:bg-white chatbot-input text-gray-800 placeholder-gray-500"
+                className="flex-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-full focus:outline-none focus:ring-2 focus:ring-cyan-500 text-gray-200 placeholder-gray-500"
               />
               <button
                 onClick={sendMessage}
                 disabled={!inputMessage.trim() || isTyping}
-                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 disabled:from-gray-400 disabled:to-gray-500 text-white px-5 py-3 rounded-full transition-all duration-200 chatbot-send shadow-lg hover:shadow-xl disabled:cursor-not-allowed flex items-center justify-center"
+                className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 disabled:from-gray-600 disabled:to-gray-600 text-white px-5 py-3 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl disabled:cursor-not-allowed flex items-center justify-center"
               >
                 {isTyping ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
@@ -228,24 +225,24 @@ const ChatBot = () => {
                 )}
               </button>
             </div>
-            
+
             {/* Quick actions */}
             <div className="flex flex-wrap gap-2 mt-3">
-              <button 
+              <button
                 onClick={() => {setInputMessage("What events are happening today?"); setTimeout(() => sendMessage(), 100);}}
-                className="text-xs bg-purple-600/20 text-purple-200 px-3 py-1 rounded-full hover:bg-purple-600/30 transition-colors"
+                className="text-xs bg-gray-800 text-gray-300 px-3 py-1 rounded-full hover:bg-gray-700 transition-colors"
               >
                 <FaCalendarAlt className="inline mr-1" /> Today's Events
               </button>
-              <button 
+              <button
                 onClick={() => {setInputMessage("Show me ticket prices"); setTimeout(() => sendMessage(), 100);}}
-                className="text-xs bg-purple-600/20 text-purple-200 px-3 py-1 rounded-full hover:bg-purple-600/30 transition-colors"
+                className="text-xs bg-gray-800 text-gray-300 px-3 py-1 rounded-full hover:bg-gray-700 transition-colors"
               >
                 <img src="/simplytix.svg" alt="Ticket" className="inline mr-1 w-4 h-4" /> Prices
               </button>
-              <button 
+              <button
                 onClick={() => {setInputMessage("Help me find events near me"); setTimeout(() => sendMessage(), 100);}}
-                className="text-xs bg-purple-600/20 text-purple-200 px-3 py-1 rounded-full hover:bg-purple-600/30 transition-colors"
+                className="text-xs bg-gray-800 text-gray-300 px-3 py-1 rounded-full hover:bg-gray-700 transition-colors"
               >
                 <FaMapMarkerAlt className="inline mr-1" /> Near Me
               </button>
@@ -255,7 +252,7 @@ const ChatBot = () => {
       ) : (
         <button
           onClick={toggleChat}
-          className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-full p-4 shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 border-2 border-white/20 backdrop-blur-sm group"
+          className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white rounded-full p-4 shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 border-2 border-gray-700"
         >
           <div className="flex items-center justify-center relative">
             <img src="/simplytix.svg" alt="Ticket" className="h-6 w-6 group-hover:rotate-12 transition-transform duration-300" />

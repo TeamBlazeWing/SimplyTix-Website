@@ -18,25 +18,28 @@ import ChatBot from './Pages/chatbot'
 function App() {
   return (
     <Router>
-      <Routes>
-        <Route path="/chatbot" element={<ChatBot />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/" element={<Login />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/forgetpassword" element={<FogetPassword />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contactus />} />
-        <Route path="/mytickets" element={<MyTickets />} />
-        <Route path="/payment" element={<Payment />} />
-        <Route path="/myevents" element={<Myevents />} />
-        <Route path="/ticketpayments" element={<TicketPayments />} />
-        <Route path="/validate-ticket/:eventId" element={<ValidateTicket />} />
-        <Route path="/validate-ticket" element={<ValidateTicket />} />
-        <Route path="/test-qr" element={<TestQRGenerator />} />
-        <Route path="/qr-test" element={<QRTestPage />} />
-        {/* Add more routes as needed */}
-      </Routes>
+      <div>
+        <Routes>
+          <Route path="/chatbot" element={<ChatBot />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/" element={<Login />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/forgetpassword" element={<FogetPassword />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contactus />} />
+          <Route path="/mytickets" element={<MyTickets />} />
+          <Route path="/payment" element={<Payment />} />
+          <Route path="/myevents" element={<Myevents />} />
+          <Route path="/ticketpayments" element={<TicketPayments />} />
+          <Route path="/validate-ticket/:eventId" element={<ValidateTicket />} />
+          <Route path="/validate-ticket" element={<ValidateTicket />} />
+          <Route path="/test-qr" element={<TestQRGenerator />} />
+          <Route path="/qr-test" element={<QRTestPage />} />
+          {/* Add more routes as needed */}
+        </Routes>
+        <ChatBot />
+      </div>
     </Router>
   )
 }
