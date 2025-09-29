@@ -12,6 +12,9 @@ const userSchema = new mongoose.Schema({
     default: 'inactive'
   },
   points: { type: Number, default: 30,min: 0, } , // Default points for new users
+  maskedMobile: { type: String, default: null },
+  subscribedAt: { type: Date, default: null },
+  subscriptionExpiresAt: { type: Date, default: null }
 }, {
   timestamps: true
 });

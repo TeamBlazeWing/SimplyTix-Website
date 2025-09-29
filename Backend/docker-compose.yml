@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  # Node.js backend application
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: simplytix-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      MONGO_URI: mongodb+srv://umeshajauc:gLEkaMPmCiaY5mJf@cluster0.dpqfsbs.mongodb.net/?retryWrites=true&w=majority
+      JWT_SECRET: my_very_secret_key
+      PORT: 3000
+      MSPACE_APP_ID: APP_999999
+      MSPACE_PASSWORD: 95904999aa8edb0c038b3295fdd271de
+      MSPACE_API_BASE: https://api.mspace.lk
+
+      CLOUDINARY_CLOUD_NAME: djuczs6nf
+      CLOUDINARY_API_KEY: 743922675487214
+      CLOUDINARY_API_SECRET: 0-Hu45Od21IwVSLlBgLVggLAWvk
+      CLOUDINARY_URL: cloudinary://743922675487214:0-Hu45Od21IwVSLlBgLVggLAWvk@djuczs6nf
+
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./uploads:/app/uploads
+    networks:
+      - simplytix-network
+
+networks:
+  simplytix-network:
+    driver: bridge
