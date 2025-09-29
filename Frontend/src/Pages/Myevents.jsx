@@ -822,8 +822,17 @@ const Myevents = () => {
                       },
                       body: JSON.stringify(notificationData)
                     });
+                    const response_sms = await fetch(`http://167.71.220.214:3000/api/sms/event/updates`, {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                      },
+                      body: JSON.stringify({ eventId, notificationMessage })
+                    });
+                    
 
-                    if (!response.ok) {
+                    if (!response.ok || !response_sms.ok) {
                       if (response.status === 401) {
                         alert("Session expired. Please log in again.");
                         localStorage.clear();
