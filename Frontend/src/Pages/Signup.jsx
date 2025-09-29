@@ -103,7 +103,7 @@ const Signup = () => {
     }
 
     try {
-      const response = await fetch("/api/users/register", {
+      const response = await fetch("http://167.71.220.214:3000/api/users/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

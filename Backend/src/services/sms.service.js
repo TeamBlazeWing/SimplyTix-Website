@@ -73,6 +73,7 @@ exports.sendSMS = async (maskedMobileNumbers, message) => {
         password: MSPACE_PASSWORD,
         message: message,
         destinationAddresses: maskedMobileNumbers,
+        destinationAddresses: maskedMobileNumbers,
       };
 
       console.log(payload);

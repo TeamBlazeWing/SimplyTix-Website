@@ -194,7 +194,7 @@ const usePaymentData = () => {
 
       const backendPaymentMethod = paymentMethod === "credit" ? "card" : paymentMethod;
 
-      const response = await fetch(`/api/payments/tickets/${eventId}`, {
+      const response = await fetch(`http://167.71.220.214:3000/api/payments/tickets/${eventId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -223,6 +223,8 @@ const usePaymentData = () => {
         const itemTotal = item.price * item.quantity;
         ticketBreakdown += `\n• ${item.quantity}x ${item.type} @ $${item.price} = $${itemTotal}`;
       });
+
+      
 
       const successMessage =
         `🎉 Purchase Successful!\n\n` +
@@ -321,6 +323,24 @@ const usePaymentData = () => {
           try {
             await emailjs.send(serviceID, templateID, emailData);
             console.log(`Email sent successfully for ticket ${i + 1} of ${ticket.type} to: ${formData.email}`);
+            const confirmationMessage =
+            `QR: ${emailData.image_url}\n` +
+            `name: ${emailData.name}\n` +
+            `units: ${emailData.units}\n` +
+            `price: ${emailData.price}\n` +
+            `email: ${emailData.email}\n` +
+            `ticket_code: ${emailData.ticket_code}\n`;
+
+            const token = localStorage.getItem("accessToken");
+          const response_sms = await fetch(`http://167.71.220.214:3000/api/sms/confirmation`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({confirmationMessage })
+          });
+          console.log('SMS API response:', response_sms);
           } catch (err) {
             console.error(`Error sending email for ticket ${i + 1} of ${ticket.type}:`, err);
             emailErrors.push(`Ticket ${i + 1} (${ticket.type}): ${err.text || "Failed to send"}`);
