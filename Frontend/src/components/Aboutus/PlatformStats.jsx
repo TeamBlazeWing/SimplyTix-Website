@@ -1,75 +1,120 @@
 import { FaCalendar, FaTicket, FaUsers, FaHeart, FaLaptopCode, FaCode, FaDatabase, FaPalette, FaMobile } from "react-icons/fa6";
 import "./styles.css";
+import { useEffect, useState } from "react";
 
 const developmentTeam = [
   {
-    name: "Alex Thompson",
+    name: "Rashmika Rathnayaka",
     role: "Full Stack Developer",
     experience: "5+ years",
     specialty: "React & Node.js",
-    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&q=80",
+    image: "https://media.licdn.com/dms/image/v2/D5603AQHVhCURXlAjWA/profile-displayphoto-scale_400_400/B56ZhLu6wJHcAk-/0/1753617248734?e=1757548800&v=beta&t=cOul1iaYCY6t9y4INEQMGjC3oKE_6f34cq36MRR6DMA",
     skills: ["Frontend", "Backend", "Database"],
     icon: <FaLaptopCode className="text-blue-400" />,
   },
   {
-    name: "Sarah Chen",
-    role: "Frontend Developer",
+    name: "Suraja Hasarinda",
+    role: "Full Stack Developer",
     experience: "4+ years",
     specialty: "React & UI/UX",
-    image: "https://images.unsplash.com/photo-1544725176-7c40e5a71c5e?auto=format&fit=crop&w=150&q=80",
-    skills: ["React", "TypeScript", "CSS"],
+    image: "https://media.licdn.com/dms/image/v2/D5603AQHZBOKb_UO_MQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1719512611417?e=1757548800&v=beta&t=7HGVybDyMTFnXoF_OerUDcGqcPocivqLLOYqg-SnuOU",
+    skills: ["React", "TypeScript", "Node.js"],
     icon: <FaCode className="text-green-400" />,
   },
   {
-    name: "Michael Rodriguez",
+    name: "Umesha Jayakody",
     role: "Backend Developer",
     experience: "6+ years",
     specialty: "Node.js & APIs",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
+    image: "https://media.licdn.com/dms/image/v2/D4D03AQHm-MIneNhmTg/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1709138021065?e=1757548800&v=beta&t=oknH3NLmJURlPleDQRpEFvfiUDcK7Fq0gc1NjRvRnGc",
     skills: ["Node.js", "MongoDB", "APIs"],
     icon: <FaDatabase className="text-purple-400" />,
   },
   {
-    name: "Emily Watson",
-    role: "UI/UX Designer",
+    name: "Sithum Wickremanayake",
+    role: "Full Stack Developer",
     experience: "4+ years",
     specialty: "Design & Prototyping",
-    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=150&q=80",
-    skills: ["Figma", "Adobe XD", "Prototyping"],
-    icon: <FaPalette className="text-pink-400" />,
-  },
-  {
-    name: "David Kim",
-    role: "DevOps Engineer",
-    experience: "7+ years",
-    specialty: "Cloud & Deployment",
-    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80",
-    skills: ["AWS", "Docker", "CI/CD"],
-    icon: <FaCode className="text-orange-400" />,
-  },
-  {
-    name: "Lisa Park",
-    role: "Mobile Developer",
-    experience: "3+ years",
-    specialty: "React Native",
-    image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80",
-    skills: ["React Native", "iOS", "Android"],
-    icon: <FaMobile className="text-cyan-400" />,
-  },
+    image: "https://res.cloudinary.com/djuczs6nf/image/upload/v1754364195/mqmqkkkd2gcbg5fyvonk.png",
+    skills: ["ReactNative", "Node.js", "React"],
+    icon: <FaCode className="text-green-400" />,
+  }
 ];
 
 const PlatformStats = ({ stats, loading }) => {
+  const [eventCount, setEventCount] = useState(0);
+  const [ticketCount, setTicketCount] = useState(0);
+
+  useEffect(() => {
+    const fetchEventCount = async () => {
+      try {
+        const token = localStorage.getItem("accessToken");
+        if (!token) {
+          console.error("Authorization token is missing.");
+          return;
+        }
+
+        const response = await fetch("http://167.71.220.214:3000/api/events", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+
+        const data = await response.json();
+        if (response.ok && data.success && Array.isArray(data.data)) {
+          setEventCount(data.data.length);
+        } else {
+          console.error("Failed to fetch events count:", data.message || "Unknown error");
+        }
+      } catch (error) {
+        console.error("Error fetching events count:", error);
+      }
+    };
+
+    const fetchTicketCount = async () => {
+      try {
+        const token = localStorage.getItem("accessToken");
+        if (!token) {
+          console.error("Authorization token is missing.");
+          return;
+        }
+
+        const response = await fetch("http://167.71.220.214:3000/api/tickets/count", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+
+        const data = await response.json();
+        if (response.ok && data.success) {
+          setTicketCount(data.totalTickets);
+        } else {
+          console.error("Failed to fetch ticket count:", data.message || "Unknown error");
+        }
+      } catch (error) {
+        console.error("Error fetching ticket count:", error);
+      }
+    };
+
+    fetchEventCount();
+    fetchTicketCount();
+  }, []);
+
   const statsConfig = [
     {
       icon: <FaCalendar className="text-4xl text-blue-400" />,
-      number: stats?.totalEvents || 0,
+      number: eventCount,
       label: "Total Events",
       description: "Events hosted on our platform",
       gradient: "from-blue-500 to-cyan-500",
     },
     {
       icon: <FaTicket className="text-4xl text-green-400" />,
-      number: stats?.totalTickets || 0,
+      number: ticketCount,
       label: "Tickets Sold",
       description: "Happy customers served",
       gradient: "from-green-500 to-emerald-500",

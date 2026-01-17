@@ -17,7 +17,8 @@ const ticketSchema = new mongoose.Schema({
     default: generateTicketId
   },
   purchaseDate: { type: Date, default: Date.now },
-  checkedIn: { type: Boolean, default: false }
+  checkedIn: { type: Boolean, default: false },
+  checkInTime: { type: Date }
 }, {
   timestamps: true
 });

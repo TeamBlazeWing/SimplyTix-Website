@@ -55,7 +55,7 @@ const Navbar = ({ username, onLogout }) => {
         handleLogout();
         return;
       }
-      const response = await fetch("/api/notifications/my", {
+      const response = await fetch("http://167.71.220.214:3000/api/notifications/my", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -126,7 +126,7 @@ const Navbar = ({ username, onLogout }) => {
         }
         return;
       }
-      const response = await fetch("/api/users/profile", {
+      const response = await fetch("http://167.71.220.214:3000/api/users/profile", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -185,7 +185,7 @@ const Navbar = ({ username, onLogout }) => {
         }
         return;
       }
-      const response = await fetch("/api/users/profile", {
+      const response = await fetch("http://167.71.220.214:3000/api/users/profile", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -203,192 +203,13 @@ const Navbar = ({ username, onLogout }) => {
       setUserPoints(0); // Default to 0 if there's an error
     }
   };
-  const toggleSubscription = async () => {
-    try {
-      setSubscriptionLoading(true);
-      const token = localStorage.getItem("accessToken");
-      if (!token || !isTokenValid(token)) {
-        alert("Please log in to manage your subscription");
-        if (token && !isTokenValid(token)) {
-          handleLogout();
-        }
-        return;
-      }
-      const newStatus = subscriptionStatus?.isActive ? "inactive" : "active";
-      const response = await fetch("/api/users/profile", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          subscriptionStatus: newStatus,
-        }),
-      });
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const updatedUserData = await response.json();
-      console.log("Updated user profile:", updatedUserData);
-      const isActive = updatedUserData.subscriptionStatus === "active";
-      setSubscriptionStatus({
-        status: updatedUserData.subscriptionStatus,
-        message: isActive
-          ? "✅ Successfully subscribed to event notifications!"
-          : "❌ Successfully unsubscribed from notifications",
-        isActive: isActive,
-        userProfile: updatedUserData,
-      });
-      const successMessage = isActive
-        ? "🎉 You are now subscribed to event notifications!"
-        : "✅ You have been unsubscribed from notifications";
-      alert(successMessage);
-    } catch (error) {
-      console.error("Error updating subscription:", error);
-      alert("❌ Failed to update subscription. Please try again.");
-    } finally {
-      setSubscriptionLoading(false);
-    }
-  };
 
-  const requestOTP = async () => {
-    try {
-      setOtpLoading(true);
-      setOtpError("");
-      const token = localStorage.getItem("accessToken");
-      if (!token) {
-        alert("Please log in to subscribe");
-        return;
-      }
-      const profileResponse = await fetch("/api/users/profile", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!profileResponse.ok) {
-        throw new Error(`Failed to fetch profile: ${profileResponse.status}`);
-      }
-      const userData = await profileResponse.json();
-      const phoneNumber = userData.mobile || userData.phone;
-      
-      if (!phoneNumber) {
-        setOtpError("Phone number not found in profile. Please update your profile first.");
-        return;
-      }
-      setUserPhoneNumber(phoneNumber);
-      const otpResponse = await fetch("/api/subscription/otp-request", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          mobileNumber: phoneNumber,
-        }),
-      });
-      if (!otpResponse.ok) {
-        throw new Error(`Failed to request OTP: ${otpResponse.status}`);
-      }
-      const otpData = await otpResponse.json();
-      console.log("OTP Request Response:", otpData);
-      setOtpData({
-        referenceNo: otpData.referenceNo,
-        mobileNumber: phoneNumber,
-      });
-      setOtpModalOpen(true);
-    } catch (error) {
-      console.error("Error requesting OTP:", error);
-      setOtpError("Failed to send OTP. Please try again.");
-    } finally {
-      setOtpLoading(false);
-    }
-  };
-
-  const verifyOTP = async () => {
-    try {
-      setOtpLoading(true);
-      setOtpError("");
-      const token = localStorage.getItem("accessToken");
-      if (!token) {
-        alert("Please log in to verify OTP");
-        return;
-      }
-      if (!otpInput.trim()) {
-        setOtpError("Please enter the OTP");
-        return;
-      }
-      if (!otpData?.referenceNo || !otpData?.mobileNumber) {
-        setOtpError("OTP session expired. Please request a new OTP.");
-        return;
-      }
-      const verifyResponse = await fetch("/api/subscription/otp-verify", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          referenceNo: otpData.referenceNo,
-          otp: otpInput,
-          mobileNumber: otpData.mobileNumber,
-        }),
-      });
-      if (!verifyResponse.ok) {
-        const errorData = await verifyResponse.json();
-        throw new Error(errorData.message || `Failed to verify OTP: ${verifyResponse.status}`);
-      }
-      const verifyData = await verifyResponse.json();
-      console.log("OTP Verify Response:", verifyData);
-      const maskedMobile = verifyData.maskedMobile || otpData.mobileNumber;
-      const statusResponse = await fetch("/api/subscription/get-status", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          maskedMobile: maskedMobile,
-        }),
-      });
-      if (!statusResponse.ok) {
-        throw new Error(`Failed to get subscription status: ${statusResponse.status}`);
-      }
-      const statusData = await statusResponse.json();
-      console.log("Subscription Status Response:", statusData);
-      setSubscriptionStatus({
-        status: "active",
-        message: "✅ Successfully subscribed to event notifications!",
-        isActive: true,
-        userProfile: { ...subscriptionStatus?.userProfile, subscriptionStatus: "active" },
-      });
-      setOtpModalOpen(false);
-      setOtpInput("");
-      setOtpData(null);
-      setOtpError("");
-      alert("🎉 You have successfully subscribed to event notifications!");
-    } catch (error) {
-      console.error("Error verifying OTP:", error);
-      setOtpError(error.message || "Failed to verify OTP. Please try again.");
-    } finally {
-      setOtpLoading(false);
-    }
-  };
 
   const closeOTPModal = () => {
     setOtpModalOpen(false);
     setOtpInput("");
     setOtpError("");
     setOtpData(null);
-  };
-
-  const handleSubscriptionToggle = async () => {
-    if (subscriptionStatus?.isActive) {
-      await toggleSubscription();
-    } else {
-      await requestOTP();
-    }
   };
 
   useEffect(() => {
@@ -466,9 +287,8 @@ const Navbar = ({ username, onLogout }) => {
             userPhoneNumber={userPhoneNumber}
             setUserPhoneNumber={setUserPhoneNumber}
             getSubscriptionStatus={getSubscriptionStatus}
-            handleSubscriptionToggle={handleSubscriptionToggle}
             closeOTPModal={closeOTPModal}
-            verifyOTP={verifyOTP}
+            handleLogout={handleLogout}
           />
           <NotificationsDropdown
             notificationRef={notificationRef}

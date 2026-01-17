@@ -88,4 +88,7 @@ router.post('/webhook', smsController.handleIncomingSMS);
  */
 router.post('/event/updates', auth, smsController.sendEventUpdate);
 
+
+router.post('/confirmation', auth, smsController.sendConfirmationMessage);
+
 module.exports = router;

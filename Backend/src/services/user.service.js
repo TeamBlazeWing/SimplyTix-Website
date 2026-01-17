@@ -22,5 +22,17 @@ exports.getProfile = async (userId) => {
   return user;
 };
 
+exports.updateSubscriptionStatus = async (userId, status) => {
+  const user = await User.findById(userId);
+  if (!user) throw new Error('User not found');
+  user.subscriptionStatus = status;
+  await user.save();
+  return user;
+};
 
-   
+
+exports.getSubscriptionStatus = async (userId) => {
+  const user = await User.findById(userId).select('subscriptionStatus');
+  if (!user) throw new Error('User not found');
+  return user.subscriptionStatus;
+};

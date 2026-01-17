@@ -9,6 +9,9 @@ import Payment from './Pages/Payment'
 import MyTickets from './Pages/MyTickets'
 import Myevents from './Pages/Myevents'
 import TicketPayments from './Pages/ticketpayments'
+import ValidateTicket from './Pages/ValidateTicket'
+import TestQRGenerator from './Pages/TestQRGenerator'
+import QRTestPage from './Pages/QRTestPage'
 
 
 function App() {
@@ -20,13 +23,16 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/forgetpassword" element={<FogetPassword />} />
-        <Route path="/events" element={<Event />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contactus />} />
         <Route path="/mytickets" element={<MyTickets />} />
         <Route path="/payment" element={<Payment />} />
         <Route path="/myevents" element={<Myevents />} />
         <Route path="/ticketpayments" element={<TicketPayments />} />
+        <Route path="/validate-ticket/:eventId" element={<ValidateTicket />} />
+        <Route path="/validate-ticket" element={<ValidateTicket />} />
+        <Route path="/test-qr" element={<TestQRGenerator />} />
+        <Route path="/qr-test" element={<QRTestPage />} />
         {/* Add more routes as needed */}
       </Routes>
     </Router>

@@ -27,6 +27,27 @@ exports.getProfile = async (req, res, next) => {
   }
 };
 
+exports.updateSubscriptionStatus = async (req, res, next) => {
+  try {
+    const { status } = req.body;
+    const user = await userService.updateSubscriptionStatus(req.user.id, status);
+    res.status(200).json({ message: 'Subscription status updated', user });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getSubscriptionStatus = async (req, res, next) => {
+  try {
+    const status = await userService.getSubscriptionStatus(req.user.id);
+    res.status(200).json({ 
+      success: true, 
+      message: status ? true : false
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 
 
 
